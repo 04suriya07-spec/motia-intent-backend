@@ -18,7 +18,7 @@ WORKDIR /app
 COPY . .
 
 # 3. Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # 4. Build the Intent Compiler
 WORKDIR /app/tools/intent-compiler
