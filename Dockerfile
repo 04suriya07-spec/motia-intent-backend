@@ -1,11 +1,15 @@
 FROM node:20-slim
 
-# Install pnpm
+# 1. Install System Dependencies (Python + Build Tools)
+# 'motia install' and some native modules need python3/make/g++
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
+# 2. Setup pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
-# Memory Optimization: Set Node memory limit to avoid OOM on free tiers
+# Memory Optimization
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 WORKDIR /app
@@ -13,35 +17,33 @@ WORKDIR /app
 # Copy repo
 COPY . .
 
-# Install dependencies (frozen lockfile for speed/safety)
+# 3. Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# 1. Build the Intent Compiler (It's a tool, not a dependency of playground)
+# 4. Build the Intent Compiler
 WORKDIR /app/tools/intent-compiler
 RUN pnpm build
 
-# 2. Generate the Backend Steps
+# 5. Generate and Install the Backend Steps
 WORKDIR /app
-# Generate steps into the example folder
 RUN node tools/intent-compiler/dist/index.js generate examples/intent-backend/intent.yaml --force
 
-# 3. CRITICAL: Copy generated steps into Playground's plugins folder
-# so they are loaded by the running server.
-# We also need db.ts at ../db (relative to steps)
+# Copy generated steps into Playground
 RUN mkdir -p playground/plugins/intent-backend
 RUN cp -r examples/intent-backend/generated/* playground/plugins/intent-backend/
 RUN cp examples/intent-backend/db.ts playground/plugins/db.ts
 
-# 4. Fix Runtime Dependency: Playground needs 'mongodb' for db.ts
+# 6. Fix Runtime Dependency for db.ts
 WORKDIR /app/playground
 RUN pnpm add mongodb
 
-# 5. Build ONLY the Playground and its dependencies (Save Memory!)
-# This skips docs, e2e, and other heavy unrelated packages.
+# 7. Build Dependencies (The Fix!)
+# We build everything playground DEPENDS on (core, plugins, etc), NOT playground itself.
+# '^...' means "dependencies of", preventing "missing script: build" error.
 WORKDIR /app
-RUN pnpm --filter=playground... run build
+RUN pnpm --filter=playground^... run build
 
-# 6. Run the Playground
+# 8. Run
 WORKDIR /app/playground
 EXPOSE 3000
 CMD ["pnpm", "dev"]
