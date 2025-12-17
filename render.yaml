@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: motia-intent-backend
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 3000
+      # db.ts defaults to local mongo if not set. 
+      # For production, user should add MONGO_URI here or in dashboard.
+      - key: MONGO_URI
+        sync: false
