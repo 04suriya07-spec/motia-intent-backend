@@ -1,0 +1,20 @@
+entity: User
+database:
+  type: mongodb
+  collection: users
+
+fields:
+  name:
+    type: string
+    required: true
+  email:
+    type: string
+    unique: true
+  age:
+    type: number
+
+operations:
+  create: true
+  get_all: true
+  get_by:
+    - email
