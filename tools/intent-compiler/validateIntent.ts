@@ -19,11 +19,18 @@ const OperationsSchema = z.object({
   get_by: z.array(z.string()).optional(),
 })
 
+const JobSchema = z.object({
+  name: z.string().min(1),
+  schedule: z.string().min(1),
+  description: z.string().optional(),
+})
+
 const IntentSchema = z.object({
   entity: z.string().min(1),
   database: DatabaseSchema,
   fields: z.record(FieldSchema),
   operations: OperationsSchema,
+  jobs: z.array(JobSchema).optional(),
 })
 
 export function validateIntent(intent: any): Intent {

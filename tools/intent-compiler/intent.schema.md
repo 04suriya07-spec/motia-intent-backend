@@ -15,10 +15,12 @@ database:
 fields:             # Map of field names to definitions
   [fieldName]: FieldDefinition
 
-operations:         # Map of allowed operations
-  create: boolean
-  get_all: boolean
   get_by: string[]  # List of fields to allow lookup by
+
+jobs:               # Optional background jobs
+  - name: string
+    schedule: string # Cron expression (e.g. "0 * * * *")
+    description: string
 ```
 
 ## Field Definition
@@ -65,11 +67,13 @@ fields:
   active:
     type: boolean
 
-operations:
-  create: true
-  get_all: true
   get_by:
     - email
+
+jobs:
+  - name: PeriodicCleanup
+    schedule: "0 * * * *" # Every hour
+    description: "Cleans up old user records"
 ```
 
 ## Constraints (Non-Goals)

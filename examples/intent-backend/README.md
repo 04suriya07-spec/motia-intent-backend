@@ -34,7 +34,7 @@ The Intent Generator produces **standard Motia Steps**. It is a learning bridge 
     intent-gen generate intent.yaml
     ```
 
-3.  Result: **3 fully working Step files** are generated for you.
+3.  Result: **Fully working CRUD APIs and Background Jobs** are generated for you.
 
 ## How to use
 

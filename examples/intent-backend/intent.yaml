@@ -18,3 +18,8 @@ operations:
   get_all: true
   get_by:
     - email
+
+jobs:
+  - name: PeriodicCleanup
+    schedule: "0 * * * *" # Every hour
+    description: "Cleans up old user records or processes daily stats"

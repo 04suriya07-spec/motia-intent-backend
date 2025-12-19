@@ -3,6 +3,13 @@ export interface Intent {
   database: DatabaseConfig
   fields: Record<string, FieldDefinition>
   operations: OperationsConfig
+  jobs?: JobConfig[]
+}
+
+export interface JobConfig {
+  name: string
+  schedule: string
+  description?: string
 }
 
 export interface DatabaseConfig {

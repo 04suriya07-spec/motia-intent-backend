@@ -106,5 +106,35 @@ export const handler = async (req: any) => {
     }
   }
 
+  // 4. Background Jobs
+  if (intent.jobs && intent.jobs.length > 0) {
+    for (const job of intent.jobs) {
+      const jobNameCap = job.name.charAt(0).toUpperCase() + job.name.slice(1)
+      const content = `${header}
+/**
+ * Background Job: ${job.description || job.name}
+ * Schedule: ${job.schedule}
+ */
+export const config = {
+  name: '${jobNameCap}Job',
+  type: 'cron',
+  cron: '${job.schedule}',
+}
+
+export const handler = async ({ logger }: any) => {
+  logger.info('Executing background job: ${job.name}')
+
+  // Demonstration: Pulling sample data to show DB access works in Jobs too
+  const result = await db.collection('${collection}').find({}).limit(10).toArray()
+
+  logger.info(\`Job ${job.name} found \${result.length} records to process.\`)
+
+  return { status: 200, body: { ok: true, processed: result.length } }
+}
+`
+      files.push({ fileName: `${entityNameLower}.job.${job.name.toLowerCase()}.step.ts`, content })
+    }
+  }
+
   return files
 }
